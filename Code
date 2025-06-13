@@ -1,0 +1,78 @@
+graph = {
+    'Bắc Ninh': {'Bắc Giang': 12, 'Ninh Bình': 5, 'Hà Nội': 8},
+    'Bắc Giang': {'Hải Dương': 7, 'Sơn La': 8, 'Quảng Ninh': 5, 'Ninh Bình': 8},
+    'Hà Nội': {'Cao Bằng': 11, 'Phú Thọ': 2},
+    'Phú Thọ': {'Cao Bằng': 9, 'Hà Giang': 4},
+    'Hà Giang': {'Cà Mau': 10},
+    'Cao Bằng': {'Cà Mau': 8, 'Ninh Bình': 6},
+    'Ninh Bình': {'Quảng Ninh': 1, 'Cà Mau': 14, 'Cao Bằng': 6, 'Bắc Giang': 8},
+    'Quảng Ninh': {'Sơn La': 7, 'Hà Nam': 5},
+    'Sơn La': {'Hải Phòng': 9},
+    'Hải Dương': {'Hải Phòng': 5},
+    'Hải Phòng': {'Nam Định': 2},
+    'Hà Nam': {'Nam Định': 12, 'Hưng yên': 4},
+    'Hưng yên': {'Nam Định': 3},
+    'Cà Mau': {'Hà Nam': 12, 'Hưng yên': 12},
+    'Nam Định' : []
+}
+
+def h(n):
+    heuristic = {
+        'Bắc Ninh': 5, 'Bắc Giang': 3, 'Hải Dương': 4, 'Hải Phòng': 8,
+        'Hà Nội': 6, 'Phú Thọ': 9, 'Cao Bằng': 12, 'Hà Giang': 8,
+        'Ninh Bình': 7, 'Quảng Ninh': 2, 'Sơn La': 5, 'Hà Nam': 6,
+        'Nam Định': 7, 'Hưng yên': 13, 'Cà Mau': 12
+    }
+    return heuristic.get(n, float('inf'))
+
+def print_path_and_cost(start, goal, parent, g):
+    path = []
+    node = goal
+    while node in parent:
+        path.append(node)
+        node = parent[node]
+    path.append(start)
+    path.reverse()
+    print("\nĐường đi ngắn nhất:")
+    print(" -> ".join(path))
+    print("Tổng chi phí:", g[goal])
+
+def A_star(graph, start, goal):
+    OPEN = [start]
+    CLOSE = []
+    g = {start: 0}
+    f = {start: h(start)}
+    parent = {}
+
+    while OPEN:
+        n = min(OPEN, key=lambda x: f[x])
+        if n == goal:
+            print_path_and_cost(start, goal, parent, g)
+            return
+
+        OPEN.remove(n)
+        CLOSE.append(n)
+
+        for m, cost in graph.get(n, {}).items():
+            new_g = g[n] + cost
+            if m not in OPEN and m not in CLOSE:
+                g[m] = new_g
+                f[m] = g[m] + h(m)
+                parent[m] = n
+                OPEN.append(m)
+            elif m in OPEN and new_g < g[m]:
+                g[m] = new_g
+                f[m] = g[m] + h(m)
+                parent[m] = n
+
+        print(f"\nXét đỉnh: {n}")
+        print("OPEN:")
+        for x in OPEN:
+            print(f"  {x}: g={g[x]}, f={f[x]}, cha={parent.get(x)}")
+        print("CLOSE:")
+        for x in CLOSE:
+            print(f"  {x}: g={g[x]}, f={f[x]}")
+
+    print("Không tìm thấy đường đi.")
+
+A_star(graph, 'Bắc Ninh', 'Nam Định')
